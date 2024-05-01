@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Terminal App</h1>
+        </div>
+        <div class="output-container">
+            <textarea id="output" rows="10" cols="50" readonly></textarea>
+        </div>
+        <div class="input-container">
+            <input type="text" id="commandInput" placeholder="Enter command">
+            <button onclick="sendCommand()">Send</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('response', (data) => {
+            if (data.error) {
+                appendOutput(data.error);
+            } else {
+                appendOutput(data.output);
+            }
+        });
+
+        function appendOutput(text) {
+            document.getElementById('output').value += text + '\n';
+        }
+
+        function sendCommand() {
+            const command = document.getElementById('commandInput').value;
+            appendOutput('> ' + command);
+            socket.emit('user-message', 'command:' + command);
+            document.getElementById('commandInput').value = '';
+        }
+    </script>
+</body>
+</html>
